@@ -1,5 +1,6 @@
 """ This module contains the ImplementationValidator class and corresponding command line tools. """
 # pylint: disable=import-outside-toplevel
+from optimade import __version__, __api_version__
 from .validator import ImplementationValidator
 from .utils import DEFAULT_CONN_TIMEOUT
 
@@ -99,6 +100,12 @@ def validate():  # pragma: no cover
     )
 
     parser.add_argument(
+        "--version",
+        action="store_true",
+        help="Print the optimade package version used by this script.",
+    )
+
+    parser.add_argument(
         "--timeout",
         type=float,
         default=DEFAULT_CONN_TIMEOUT,
@@ -106,6 +113,12 @@ def validate():  # pragma: no cover
     )
 
     args = vars(parser.parse_args())
+
+    if args["version"]:
+        print(
+            f"optimade-validator is using optimade v{__version__} and will validate against OPTIMADE specification v{__api_version__}."
+        )
+        sys.exit(0)
 
     if os.environ.get("OPTIMADE_VERBOSITY") is not None:
         try:
