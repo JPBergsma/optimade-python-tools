@@ -1,6 +1,8 @@
 # pylint: disable=no-self-argument,line-too-long,no-name-in-module
 import re
 import warnings
+from math import gcd
+from functools import reduce
 from enum import IntEnum, Enum
 from sys import float_info
 from typing import List, Optional, Union
@@ -889,6 +891,29 @@ The properties of the species are found in the property `species`.
         if elements != expected_labels:
             raise ValueError(
                 f"'chemical_formula_anonymous' {v} has wrong labels: {elements} vs expected {expected_labels}."
+            )
+
+        return v
+
+    @validator("chemical_formula_anonymous", "chemical_formula_reduced")
+    def check_reduced_formulae(cls, v, field):
+        if v is None:
+            return v
+
+        numbers = [n.strip() or 1 for n in re.split(r"[A-Z][a-z]*", v)]
+        # Need to remove leading 1 from split and convert to ints
+        numbers = [int(n) for n in numbers[1:]]
+
+        if any(n == 0 for n in numbers):
+            raise ValueError(
+                f"{field.name} {v!r} cannot contain chemical proportion of 0."
+            )
+
+        # Can replace with just `math.gcd(numbers)` in Python 3.9+
+        _gcd = reduce(gcd, numbers)
+        if _gcd != 1:
+            raise ValueError(
+                f"{field.name} {v!r} is not properly reduced: GCD was {_gcd}, expected 1."
             )
 
         return v
