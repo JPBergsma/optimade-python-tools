@@ -104,7 +104,7 @@ def config_file_settings(settings: BaseSettings) -> Dict[str, Any]:
     encoding = settings.__config__.env_file_encoding
     config_file = Path(os.getenv("OPTIMADE_CONFIG_FILE", DEFAULT_CONFIG_FILE_PATH))
 
-    print("path=", os.path)
+    print("path=", os.listdir())
     print("configfilepath", config_file)
 
     res = {}
