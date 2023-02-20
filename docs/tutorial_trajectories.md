@@ -2,30 +2,49 @@
 
 The tutorial explains how to set up an OPTIMADE server for trajectory data.
 The code linked to here matches the trajectory endpoint as described in [https://github.com/JPBergsma/OPTIMADE/blob/JPBergsma_add_Trajectories/optimade.rst](https://github.com/JPBergsma/OPTIMADE/blob/JPBergsma_add_Trajectories/optimade.rst) and discussed in [OPTIMADE PR#377](https://github.com/Materials-Consortia/OPTIMADE/pull/377):
-This corresponds to [version 1.1 of the OPTIMADE ](https://github.com/Materials-Consortia/OPTIMADE/releases/tag/v1.1.0).
+This corresponds to [version 1.1 of the OPTIMADE specification](https://github.com/Materials-Consortia/OPTIMADE/releases/tag/v1.1.0).
 The trajectory endpoint is however still under development and there will probably be significant changes before it is merged with the main OPTIMADE specification.  
 
 The optimade-python-tools support both [MongoDB](https://www.mongodb.com) and [Elasticsearch](https://www.elastic.co/elasticsearch) backends.
 Other backends can be used as well, but will require creating a custom filtertransformer for converting the query into a backend compatible format and a custom entry_collections object for interacting with the database backend.
-In this tutorial we will use MongoDB but the same steps apply for other backends.
+In this tutorial we will use an Ubuntu like linux distribution with MongoDB as the backend.
+At the bottem there is a troubleshooting section.
 
-### Installing the optimade python tools
+### Aquiring the trajectory version of the optimade python tools
 
 The first step is to install the optimade python tools.
 Here we briefly describe the steps required to install the trajectory branch of the optimade python tools.
 You can find more details in the installation instructions described in [INSTALL.md](https://github.com/JPBergsma/optimade-python-tools/blob/optimade_python_tools_trajectory_0.1/INSTALL.md).
 You will however need to use the code found on GitHub at [https://github.com/JPBergsma/optimade-python-tools/tree/optimade_python_tools_trajectory_0.1](https://github.com/JPBergsma/optimade-python-tools/tree/optimade_python_tools_trajectory_0.1)
-To install the optimade python tools as a library you should use: `pip install git+https://github.com/JPBergsma/optimade-python-tools.git@optimade_python_tools_trajectory_0.1`.
-When setting up your own database you may still want to modify the code.
+If you only want to use the optimade python tools as a library you should use: `pip install git+https://github.com/JPBergsma/optimade-python-tools.git@optimade_python_tools_trajectory_0.1`.
+In this tutorial we are however describing how to set up your own database for sharing trajectory data.
 In that case it is better to clone the repository and create your own branch from the [optimade_python_tools_trajectory_0.1](https://github.com/JPBergsma/optimade-python-tools/tree/optimade_python_tools_trajectory_0.1) branch.  
-You can than install the package with `pip install -e <path to optimade-python-tools>`.
+
+If you already have a GitHub account setup you can clone the repository with: `git clone --recursive git@github.com:JPBergsma/optimade-python-tools.git`
+Without GitHub account you can use `git clone --recursive https://github.com/JPBergsma/optimade-python-tools.git`
+Next you should switch to the version 0.1 branch with `git switch optimade-python-tools-trajectory-0.1`
+
+### Conda
+
+You may now want to set up a separate conda environment so there can't be a version conflict between the dependencies of different python programs.  
+See the instructions on how to install (mini)conda here: https://conda.io/projects/conda/en/stable/user-guide/install/index.html
+
+If you use conda you can create a separate environment using: `conda create -n optimade-traj python=3.10`
+You can also use Python versions 3.8 and 3.9.  
+You can activate the conda environment with: `conda activate optimade-traj`
+
+
+### Install the trajectory version of the optimade python tools
+
+Next, you can install the local version of this package by going into the optimade-python-tools folder and running `pip install -e .[server]`.
+By using the -e flag
 
 
 ### Installing MongoDB
 
 The installation instructions for MongoDB can be found at [https://www.mongodb.com/docs/manual/installation/](https://www.mongodb.com/docs/manual/installation/)
 The community edition is good enough for our purpose.
-
+#TODO lookup how to setup mongodb it automatically starts at reboot.
 
 ### Setup the config file
 
@@ -38,13 +57,16 @@ If you are setting up a new database backend the important parameters to set are
 * insert_test_data:
   * description: This value needs to be set to false, otherwise the test data will be inserted in the database you are trying to construct.
   * type: boolean
+
 * database_backend:
   * description: The type of backend that is used. the options are: "elastic" for the elasticsearch backend, "mongodb" for the MongoDB backend and "mongomock" for the test backend.
   In this tutorial we use MongoDB, so it should be set to "mongodb".
   * type: string
+
 * base_url:
   * description: The url at which you will serve the database.
   * type: string
+
 * provider:
   * description: This field contains information about the organization that provides the data base.
   * type: dictionary
@@ -61,6 +83,7 @@ If you are setting up a new database backend the important parameters to set are
     * homepage:
       * description: A Url for the website of the provider.
       * type: string
+
 * provider_fields:
   * description: In this dictionary database fields that are specific to this provider are defined. You can remove the entries that
   * type: dictionary
@@ -79,6 +102,7 @@ If you are setting up a new database backend the important parameters to set are
         * description:
           * description: A description of the property.
           * type: string
+
 * length_aliases:
   * description: This property maps list properties to integer properties that define the length of those lists.
     For example elements -> nelements. This dictionary must refer to the API fields. For database specific fields the field names must thus be prepended with the database specific prefix.
@@ -100,7 +124,7 @@ If you are setting up a new database backend the important parameters to set are
   * keys: The names of the different supported return formats.
   * values: An integer containing the maximum size of the response in megabytes.
 
-More parameters can be found by checking the `ServerConfig` class defined in `optimade.server.config.py`
+More parameters can be found by checking the `ServerConfig` class defined in `optimade.server.config.py`, which are useful if you already have a pre-existing database or want to customize the setup of the MongoDB database.
 
 
 ### Loading trajectory data into mongo DB
@@ -109,24 +133,28 @@ The next step is to load the data that is needed to create valid OPTIMADE respon
 A small example script to generate a MongoDB entry from a trajectory file can be found on [https://github.com/JPBergsma/Export_traj_to_mongo](https://github.com/JPBergsma/Export_traj_to_mongo)
 It uses the [MDanalysis](https://docs.mdanalysis.org/stable/index.html) package to read the trajectory files.
 The supported file types are listed on: [https://userguide.mdanalysis.org/stable/formats/index.html](https://userguide.mdanalysis.org/stable/formats/index.html)
-It can be installed with `pip install git+https://github.com/JPBergsma/Export_traj_to_mongo@master`.
+It can be downloaded with `git clone https://github.com/JPBergsma/Export_traj_to_mongo.git`
+And installed with `pip install -e <path to Export_traj_to_mongo>`
+You can use the same environment as before.
+
 You can use this script to load the trajectory data into your database.
 
 Instructions on how to run this script can be found in the accompanying [README.md](https://github.com/JPBergsma/Export_traj_to_mongo/blob/master/README.md) file.
 
+### Validation
+
+To test the setup up to this point you can go to optimade-python-tools folder and run:
+`uvicorn optimade.server.main:app --reload --port=5000`
+
 ### deployment
 
-T
+By adding the --reload flag the server is automatically restarted when the code of the optimade python tools is changed.
+
+If you are satisfied with how things are working you can run the server with:
+
+### Register prefix
 
 
-### Conda
-
-You may want to do this in a separate conda environment so there can't be a version conflict between the dependencies of different python programs.  
-See the instructions on how to install (mini)conda here: https://conda.io/projects/conda/en/stable/user-guide/install/index.html
-
-If you use conda you can create a separate environment using: `conda create -n optimade python=3.11`
-You can also use Python versions 3.8, 3.9 and 3.10.  
-You can activate the conda environment with: `conda activate optimade`
 
 
 
