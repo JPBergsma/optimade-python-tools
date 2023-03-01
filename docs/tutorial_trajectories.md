@@ -22,8 +22,8 @@ In that case it is better to clone the repository and create your own branch fro
 This way you can easily make modifications to the code when you want to change the behaviour of your server later on.
 
 If you already have a GitHub account setup you can clone the repository with: `git clone --recursive git@github.com:JPBergsma/optimade-python-tools.git`
-Without GitHub account you can use `git clone --recursive https://github.com/JPBergsma/optimade-python-tools.git`
-Next you should switch to the version 0.1 branch with `git switch optimade-python-tools-trajectory-0.1`
+Without GitHub account you can use `git clone --recursive https://github.com/JPBergsma/optimade-python-tools.git`.
+Next you should switch to the version 0.1 branch with `cd optimade-python-tools` followed by `git switch optimade_python_tools_trajectory_0.1`
 
 ### Conda
 
@@ -99,7 +99,7 @@ If you are setting up a new database backend, the important parameters to set ar
           Possible values are: "boolean", "object" (for an OPTIMADE dictionary), "array" (for an OPTIMADE list), "number" (for an OPTIMADE float), "string", and "integer".
           * type: string
         * unit:
-          * description: The unit belonging to the property as described in [GNU Units version 2.22](https://www.gnu.org/software/units/)
+          * description: The unit belonging to the property. One is encouraged to use the top most notation for the unit as described in [definitions.units](https://github.com/Materials-Consortia/OPTIMADE/blob/develop/units/definitions.units), which was taken from [GNU Units version 2.22](https://www.gnu.org/software/units/), as this will become the unit system for OPTIMADE 1.2 onward.
           * type: string
         * description:
           * description: A description of the property.
@@ -114,7 +114,7 @@ If you are setting up a new database backend, the important parameters to set ar
   * values: A dictionary with the name of the list field as the key and the field corresponding to the length of this list as the value.
 
 * enabled_response_formats
-  * description: The supported output formats. JSON is the default output format for optimade. It however does not support storing binary numbers and as a result the response for trajectories can become quite large.
+  * description: The supported output formats. JSON is the default output format for OPTIMADE. It however does not support storing binary numbers and as a result the response for trajectories can become quite large.
     Therefore, we have added experimental support for the hdf5 format. This will make the responses much smaller when returning large amounts of numerical data, but there is also some extra overhead per field, so for entries without large numerical fields JSON can be more efficient.
     Valid values are: "json" and "hdf5".
   * type: List of strings
@@ -127,6 +127,8 @@ If you are setting up a new database backend, the important parameters to set ar
   * keys: The names of the different supported return formats.
   * values: An integer containing the maximum size of the response in megabytes.
 
+You can still adjust some of these parameters later if, for example, you want to add more database specific properties later on.
+The script in the next section however uses the information in this file to connect to mongoDB, so that information must be present before the next step can be executed.
 More parameters can be found by checking the `ServerConfig` class defined in `optimade.server.config.py`, which are useful if you already have a pre-existing database or want to customize the setup of the MongoDB database.
 
 
@@ -135,7 +137,6 @@ More parameters can be found by checking the `ServerConfig` class defined in `op
 The next step is to load the data that is needed to create valid OPTIMADE responses into the Mongo database.
 A small example script to generate a MongoDB entry from a trajectory file can be found on [https://github.com/JPBergsma/Export_traj_to_mongo](https://github.com/JPBergsma/Export_traj_to_mongo)
 It uses the [MDanalysis](https://docs.mdanalysis.org/stable/index.html) package to read the trajectory files.
-The supported file types are listed on: [https://userguide.mdanalysis.org/stable/formats/index.html](https://userguide.mdanalysis.org/stable/formats/index.html)
 It can be downloaded with `git clone https://github.com/JPBergsma/Export_traj_to_mongo.git`
 And installed with `pip install -e <path to Export_traj_to_mongo>`
 You can use the same environment as before.
@@ -143,6 +144,8 @@ You can use the same environment as before.
 You can use this script to load the trajectory data into your database.
 
 Instructions on how to run this script can be found in the accompanying [README.md](https://github.com/JPBergsma/Export_traj_to_mongo/blob/master/README.md) file.
+If you have not restarted since installing MongoDB you still need to start MongoDB with: `sudo systemctl start mongod`
+You can check whether mongo db is running you can use: `sudo systemctl status mongod`  
 
 ### Validation
 
@@ -170,7 +173,7 @@ You may therefore need to contact the ICT department of your organization to mak
 This is also a good opportunity to ask them about extra security measures you may need to take.
 e.g. run the server within a container/virtual machine or using nginx.
 
-### Register prefix
+### Register your database
 
 Once you have finished setting up your server, you can register your database.
 You can find instructions on how to do this here: [https://github.com/Materials-Consortia/providers#requirements-to-be-listed-in-this-providers-list](https://github.com/Materials-Consortia/providers#requirements-to-be-listed-in-this-providers-list)
