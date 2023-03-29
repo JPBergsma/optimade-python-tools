@@ -1,9 +1,9 @@
 ## Setting up an OPTIMADE Trajectory database.
 
 The tutorial explains how to set up an OPTIMADE server for trajectory data.
-The code linked to here matches the trajectory endpoint as described in [the trajectories proposal](https://github.com/JPBergsma/OPTIMADE/blob/Trajectory_proposal_v0.1/optimade.rst) and discussed in [OPTIMADE PR#377](https://github.com/Materials-Consortia/OPTIMADE/pull/377).
+The code linked to here matches the trajectory endpoint as described in [v0.1 of the trajectories proposal](https://github.com/JPBergsma/OPTIMADE/blob/Trajectory_proposal_v0.1/optimade.rst) and discussed in [OPTIMADE PR#377](https://github.com/Materials-Consortia/OPTIMADE/pull/377).
 This corresponds to [version 1.1 of the OPTIMADE specification](https://github.com/Materials-Consortia/OPTIMADE/releases/tag/v1.1.0).
-The trajectory endpoint is however still under development and there may still be significant changes before it is merged with the main OPTIMADE specification, based on feedback from the community.
+The trajectory endpoint is however still under development and there will probably be significant changes before it is merged with the main OPTIMADE specification, based on feedback from the community.
 
 The [optimade-python-tools](https://github.com/Materials-Consortia/optimade-python-tools) library currently supports the [MongoDB](https://www.mongodb.com) and [Elasticsearch](https://www.elastic.co/elasticsearch) database backends.
 Other backends can be used as well, but will require creating a custom filtertransformer for converting the query into a backend compatible format and a custom [`EntryCollection`](https://www.optimade.org/optimade-python-tools/latest/api_reference/server/entry_collections/entry_collections/) object for interacting with the database backend.
@@ -12,7 +12,7 @@ More generic advice on setting up an OPTIMADE API can be found in the [online do
 In this tutorial, we will use a Ubuntu-based Linux distribution with MongoDB as the backend for our trajectory data.
 At the end of this document you can find a troubleshooting section.
 
-### Acquiring the trajectory version of the optimade-python-tools
+### Acquiring the trajectory version of optimade-python-tools
 
 The first step is to install optimade-python-tools.
 You can find more details in the installation instructions described in [INSTALL.md](https://github.com/JPBergsma/optimade-python-tools/blob/optimade_python_tools_trajectory_0.1/INSTALL.md).
@@ -51,7 +51,7 @@ You can then activate and begin using the Conda environment with: `conda activat
 
 ### Install the trajectory version of the optimade python tools
 
-Next, you can install the local version of this package by going into the optimade-python-tools folder created during the `git clone` and installing the package locally with:
+Next, you can install the local version of this package by going into the optimade-python-tools folder, created during the `git clone`, and installing the package locally with:
 
 ```pip install -e .[server]```
 
@@ -59,13 +59,13 @@ Next, you can install the local version of this package by going into the optima
 
 The installation instructions for MongoDB can be found on the [MongoDB website](https://www.mongodb.com/docs/manual/installation/)
 The free community edition is good enough for our purposes.
-To automatically run the `mongod` daemon when the machine is booted, you can run: `systemctl enable mongod.service`, or simply launch it in a given terminal with `mongod`.
+To automatically run the `mongod` daemon when the machine is booted, you can run: `systemctl enable mongod.service`, to run it just once you can use: `systemctl start mongod.service`.
 
 ### Set up the config file
 
 The next step is setting up the server configuration file.
 The default location is in the user's home directory, i.e `"~/.optimade.json"`.
-More information and alternative ways for setting up the configuration parameters can be found in the [online configuration instructions](https://www.optimade.org/optimade-python-tools/latest/configuration/).
+More information and alternative ways for setting up the configuration parameters can be found in the [online configuration instructions](https://github.com/JPBergsma/optimade-python-tools/blob/optimade_python_tools_trajectory_0.1/docs/configuration.md).
 An example configuration file `optimade_config.json` is bundled with the package and can be used as starting point for creating your own configuration file.
 If you are setting up a new API, the important parameters to set are:
 
@@ -175,7 +175,7 @@ Next, you can run `optimade-validator http://localhost:5000` to validate the set
 
 At the moment, the validator may still give a `"'StrictFieldInfo' object is not subscriptable"` error, which can be safely ignored for now.
 Any errors under INTERNAL FAILURES indicate problems with the validator itself and not with the server setup. You can report those [here](https://github.com/JPBergsma/optimade-python-tools/issues).
-More details about validating your server can be found in [the online documentation](https://www.optimade.org/optimade-python-tools/latest/concepts/validation/).
+More details about validating your server can be found in [the online documentation](https://github.com/JPBergsma/optimade-python-tools/blob/optimade_python_tools_trajectory_0.1/docs/concepts/validation.md).
 
 ### Deployment
 
