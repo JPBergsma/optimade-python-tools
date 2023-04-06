@@ -280,5 +280,5 @@ You have to run the docker commands with elevated privileges, for example by pre
 #### Further help
 
 General questions about OPTIMADE can be asked on the [Matsci forum](https://matsci.org/c/optimade/29).
-Bug reports or feature requests about the optimade-python-tools in general can be posted on the optimade-python-tools github page: https://github.com/Materials-Consortia/optimade-python-tools/issues
+Bug reports or feature requests about the optimade-python-tools in general can be posted on the [optimade-python-tools github page](https://github.com/Materials-Consortia/optimade-python-tools/issues).
 Issues specific to the trajectory branch of the optimade-python-tools can be posted here: https://github.com/JPBergsma/optimade-python-tools/issues
