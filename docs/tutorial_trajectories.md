@@ -26,11 +26,11 @@ In this tutorial, we are however describing how to set up your own database for 
 In that case it is better to clone the repository and create your own branch from the [`optimade_python_tools_trajectory_0.1`](https://github.com/JPBergsma/optimade-python-tools/tree/optimade_python_tools_trajectory_0.1) branch.
 This way you can easily make modifications to the code when you want to change the behaviour of your server later on.
 
-If you already have a GitHub account setup you can clone the repository with: 
+If you already have a GitHub account setup you can clone the repository with:
 
 ```git clone --recursive git@github.com:JPBergsma/optimade-python-tools.git -b optimade_python_tools_trajectory_0.1```
 
-Without GitHub account you can use: 
+Without GitHub account you can use:
 
 ```git clone --recursive https://github.com/JPBergsma/optimade-python-tools.git -b optimade_python_tools_trajectory_0.1```
 
@@ -45,7 +45,7 @@ If you use Conda you can create a separate environment using:
 
 ```conda create -n optimade-traj python=3.10```
 
-You could also use Python versions 3.8 or 3.9 if you need to integrate with other libraries that require them. 
+You could also use Python versions 3.8 or 3.9 if you need to integrate with other libraries that require them.
 You can then activate and begin using the Conda environment with: `conda activate optimade-traj`
 
 
@@ -187,6 +187,54 @@ In many organizations there is a firewall between the internet and the internal 
 You may therefore need to contact the ICT department of your organization to make your server reachable from outside the internal network.
 This is also a good opportunity to ask them about extra security measures you may need to take, e.g., run the server within a container/virtual machine or using nginx.
 
+### Using a docker container
+
+You can run the optimade-python-tools from within a [docker](https://docs.docker.com/) container.
+This adds a bit of security and is also a way to run multiple instances of the server.
+The first step is building a docker image with your local version of the optimade-python-tools.
+Run the following command in you local optimade-python-tools folder to create a docker image.
+`docker build -t optimade-traj:0.1 .`
+
+If you also want to run mongodb in a docker container the next step is to create a docker network, so the containers can communicate with each other, via:
+
+`docker network create -d bridge optimade`
+
+You can start mongodb in a docker container via:
+```
+docker run \
+    --detach \
+    --name mongo \
+    --volume mongodb-persist:/data/db \
+    --network optimade \
+    docker.io/library/mongo:latest
+```
+In that case you have to set "mongo_uri" in the config file to "mongodb://mongo:27017".  
+
+Next you can start the container for the optimade python tools with:
+```
+docker run \
+    --rm \
+    --detach
+    --publish 8081:5000 \
+    --env MAIN=main \
+    --name my-optimade \
+    --network optimade \
+    --volume /folder/containing/config/:/config \
+    --env OPTIMADE_CONFIG_FILE=/config/.optimade.json \
+    optimade-traj:0.1
+```
+
+You still have to replace /folder/containing/config/ with the path where you have put your config file.
+The flag `--detach` causes the docker container to run in the background. If you want to see the output you can remove it.  
+If everything is running properly. you can now visit the landing page at http://0.0.0.0:8081/
+The first value indicted under the flag `--publish` is the port number that is exposed externally.
+You may need to adjust the value of "base_url" in the config file to match this port number.
+
+If you do not run mongodb in a docker container you should set the `--network` flag to `"host"`.
+The publish command is also ignored in that case, so by default the uvicorn server should be available at port 5000.
+
+For more details see [container.md](https://www.optimade.org/optimade-python-tools/latest/deployment/container/)
+
 ### Register your database
 
 Once you have finished setting up your server, you can register your API with the OPTIMADE consortium.
@@ -203,6 +251,19 @@ This may happen when MongoDB was not terminated properly.
 It can be solved by: `$ rm /tmp/mongodb-27017.sock`
 (27017 is the default port for mongod)
 
+##### exit code:100 or exit code 34 or permission denied
+
+IllegalOperation: Attempted to create a lock file on a read-only directory: /data/db or "permission denied.
+
+Because mongod was run in a docker container the file permissions were changed.
+You can reset them with:
+`sudo chmod -R 777 /data/db`
+and
+```
+sudo chown -R `id -u` /data/db
+```
+
+
 #### (Mini)Conda
 
 If after you have installed Conda you get the error that the command cannot be found, it may be that the location of Conda has not been added to the PATH variable.
@@ -211,6 +272,10 @@ You can try to use `conda init bash` to initialize Conda properly. (If you use a
 
 If you get the error message: "ERROR: Error [Errno 2] No such file or directory 'git'" git still needs to be installed with:  `conda install git`
 
+#### Docker
+
+If you get the error "Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock:"
+You have to run the docker commands with elevated privileges, for example by prepending them with `sudo `.
 
 #### Further help
 
