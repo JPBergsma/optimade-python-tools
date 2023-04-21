@@ -151,7 +151,7 @@ More parameters can be found by checking the `ServerConfig` class defined in `op
 ### Loading trajectory data into MongoDB
 
 The next step is to load the data that is needed to create valid OPTIMADE responses into the MongoDB database.
-A small example script to generate a MongoDB entry from a trajectory file can be found at [JPBergsma/Export_traj_to_mongo](https://github.com/JPBergsma/Export_traj_to_mongo/blob/master/exporttomongo.py).
+A small example script to generate a MongoDB entry from a trajectory file can be found at [JPBergsma/Export_traj_to_mongo](https://github.com/JPBergsma/Export_traj_to_mongo).
 It uses the [MDanalysis](https://docs.mdanalysis.org/stable/index.html) package to read the trajectory files.
 It can be downloaded with `git clone https://github.com/JPBergsma/Export_traj_to_mongo.git`
 And installed with `pip install -e <path to Export_traj_to_mongo>`
